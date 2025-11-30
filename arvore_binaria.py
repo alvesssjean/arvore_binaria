@@ -6,6 +6,8 @@ def criar_arvore(lista: list[int]):
     if not lista:
         return G, {}
     
+    lista_ordenada = sorted(lista)
+    
     def add_nos(lista_ordenada, x = 0, y = 0, horizontal = 4):
         if not lista_ordenada:
             return None
@@ -32,7 +34,7 @@ def criar_arvore(lista: list[int]):
             G.add_edge(no_valor, direita)
         return no_valor
     
-    add_nos(lista)
+    add_nos(lista_ordenada)
     pos = nx.get_node_attributes(G, 'pos')
     return G, pos
 
@@ -84,7 +86,9 @@ def inserir(lista, n):
             
     print(f'Adicionado o valor {n}\nRebalanceando a árvore...')
     
-    atualizar_arvore(G, pos, f'Inserido o valor: {n}', lista, no_destaque=n)        
+    atualizar_arvore(G, pos, f'Inserido o valor: {n}', lista, no_destaque=n)
+
+    return lista, G, pos      
     
 
 
@@ -100,6 +104,8 @@ def excluir(lista, n):
         atualizar_arvore(G, pos, f'Removido o valor: {n}', lista)
     else:
         print(f'O valor {n} não está na lista!')
+
+    return lista, G, pos
         
   
     
@@ -107,12 +113,15 @@ def excluir(lista, n):
     
 def buscar(lista, n, inicio = 0, fim = None):
     if n not in lista:
-        return
+        return lista, None, None
+    
     lista_ordenada = sorted(lista)
     
     if fim is None:
         fim = len(lista_ordenada)-1
     
+    if inicio > fim:
+        return lista, None, None
     
     meio = (inicio + fim) // 2
     if lista_ordenada[meio] == n:
@@ -125,12 +134,16 @@ def buscar(lista, n, inicio = 0, fim = None):
         print(f'Removendo {n} e rebalanceando a árvore...\n')
         lista.remove(n)
         G, pos = criar_arvore(lista)
-        atualizar_arvore(G, pos, f'Removido o valor {n} após ser encontrado' , lista, no_destaque=n)    
+        atualizar_arvore(G, pos, f'Removido o valor {n} após ser encontrado' , lista, no_destaque=n)
+        return lista, G, pos
+
             
     elif lista_ordenada[meio] < n:
         return buscar(lista, n, meio + 1, fim)
     else:
         return buscar(lista, n, inicio, meio - 1)
+
+
 
 
 
@@ -156,7 +169,7 @@ while True:
     if menu == 1:
         numero = int(input('\nQual o número que deseja encontrar?\n'))
         if numero in lista:
-            buscar(lista, numero)
+            lista, G, pos = buscar(lista, numero)
         else:
             print(f'\nO número {numero} não existe na lista informada!\n\n')
             plotar_arvore(G, pos, lista)
@@ -165,7 +178,8 @@ while True:
     elif menu == 2:
         elemento = int(input('\nDigite o número que deseja inserir na árvore:\n'))
         if elemento not in lista:
-            inserir(lista, elemento)
+            lista, G, pos = inserir(lista, elemento)
+
         else:
             print(f'\nO número {elemento} já existe na lista! Não é possível adicionar números repetidos.\n\n')
             plotar_arvore(G, pos, lista)
@@ -174,7 +188,7 @@ while True:
     elif menu == 3:
         n_excluir = int(input('\nDigite o número que deseja excluir da árvore: \n'))
         if n_excluir in lista:
-            excluir(lista, n_excluir)
+            lista, G, pos = excluir(lista, n_excluir)
         else:
             print(f'\nO número {n_excluir} não existe na lista informada!\n\n')
             plotar_arvore(G, pos, lista)
