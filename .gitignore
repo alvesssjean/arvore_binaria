@@ -1,0 +1,13 @@
+# Byte-compiled / cache / logs
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Virtual environment
+venv/
+.venv/
+
+# VS Code / IDE
+.vscode/
